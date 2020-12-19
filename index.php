@@ -12,15 +12,7 @@
         'team7',
         'team8',
         'team9',
-        'team10',
-        'team11',
-        'team12',
-        'team13',
-        'team14',
-        'team15',
     ];
-
-    $members = $tournament->validate_teams($members);
 ?>
 
 <!DOCTYPE html>
@@ -31,6 +23,6 @@
     <title>Document</title>
 </head>
 <body>
-<pre><?php $tournament->generate_rounds($members); ?></pre>
+<pre><?php $tournament->generate_rounds($members, false, 4); ?></pre>
 </body>
 </html>
