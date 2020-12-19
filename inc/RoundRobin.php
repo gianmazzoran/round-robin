@@ -1,108 +1,110 @@
 <?php
-    class RoundRobin {
-        function generate(array $teams = [], bool $shuffle = false) {
+class RoundRobin
+{
+    /**
+     * Check number of teams and compare to $team_per_rounds to fill empty spots
+     * 
+     * @param array $teams An array of teams
+     * 
+     * @param int $team_per_rounds Number of teams for each rounds
+     * 
+     * @param string $filler String containing the filler name (ex. BYE)
+     * 
+     * @param bool $shuffle Whether to shuffle the teams before generating the schedule, default is false
+     * 
+     * @return array An array of teams divided in rounds.
+     */
+    function generate_rounds(array $teams = [], bool $shuffle = false, int $team_per_rounds = 4, string $filler = "BYE")
+    {
 
-            if (count($teams) % 2 != 0) {
-                array_push($teams, "BYE");
-            }
-
-            if ($shuffle) {
-                shuffle($teams);
-            }
-            
-            $number_of_teams = count($teams);
-            $rounds = $number_of_teams - 1;
-
-            for ($i=0; $i < $number_of_teams / 2; $i++) { 
-                $team1[$i] = $teams[$i];
-                $team2[$i] = $teams[$number_of_teams - 1 - $i];
-            }
-
-            for ($i = 0; $i < $rounds; $i++) {
-                /* stampa le partite di questa giornata */
-                echo '<br />'.($i+1).'a Round<br />';
-        
-                /* alterna le partite in team1 e fuori */
-                if (($i % 2) == 0) 
-                {
-                    for ($j = 0; $j < $number_of_teams / 2 ; $j++) {
-                        echo ' '.$team2[$j].' - '.$team1[$j].'<br />';
-                    }
-                }
-                else {
-                    for ($j = 0; $j < $number_of_teams / 2 ; $j++) 
-                    {
-                        echo ' '.$team1[$j].' - '.$team2[$j].'<br />';
-                    }
-                        
-                }
-        
-                // Ruota in gli elementi delle liste, tenendo fisso il primo elemento
-                // Salva l'elemento fisso
-                $pivot = $team1[0];
-        
-                /* sposta in avanti gli elementi di "team2" inserendo 
-                all'inizio l'elemento team1[1] e salva l'elemento uscente in "riporto" */
-                array_unshift($team2, $team1[1]);
-                $riporto = array_pop($team2);
-
-                /* sposta a sinistra gli elementi di "team1" inserendo all'ultimo 
-                posto l'elemento "riporto" */
-                array_shift($team1);
-                array_push($team1, $riporto);
-        
-                // ripristina l'elemento fisso
-                $team1[0] = $pivot ;
-            } 
-        }
-
-        function generate_rounds(array $teams = [], bool $shuffle = false, int $team_per_rounds = 4) {
-
+        // Add $filler to $teams
+        if (count($teams) % $team_per_rounds != 0) {
+            array_push($teams, $filler);
             if (count($teams) % $team_per_rounds != 0) {
-                array_push($teams, "BYE");
-                if (count($teams) % $team_per_rounds != 0) {
-                    for ($i=0; $i < count($teams) % $team_per_rounds; $i++) { 
-                        array_push($teams, "BYE");
-                    }
-                }   
-            }
-
-            if ($shuffle) {
-                shuffle($teams);
-            }
-            
-            $number_of_teams = count($teams);
-            $number_of_rounds = $number_of_teams - 1;
-
-            $rounds = array_chunk($teams, $team_per_rounds);
-            $rounds_with_match = [];
-
-            $team2 = array_splice($teams,(count($teams)/2));
-            $team1 = $teams;
-
-            print_r($team1);
-            print_r($team2);
-
-            foreach($rounds as $round) {
-                for ($i=0; $i < $team_per_rounds; $i++) { 
-                    // The actual scheduling based on round robin
-                    for ($i=0; $i < count($team1)+count($team2)-1; $i++){
-                        for ($j=0; $j<count($team1); $j++){
-                            print_r($round[$i]);
-                            // $round[$i][$j]["team1"]=$team1[$j];
-                            // $round[$i][$j]["team2"]=$team2[$j];
-                        }
-                        // Check if total numbers of teams is > 2 otherwise shifting the arrays is not neccesary
-                        if(count($team1)+count($team2)-1 > 2){
-                            $array_splice = array_splice($team1,1,1);
-                            array_unshift($team2,array_shift($array_splice));
-                            array_push($team1,array_pop($team2));
-                        }
-                    }
+                for ($i = 0; $i < count($teams) % $team_per_rounds; $i++) {
+                    array_push($teams, $filler);
                 }
             }
-
-            print_r($rounds);
         }
+
+
+        // If true shuffle teams otherwise seed
+        if ($shuffle) {
+            shuffle($teams);
+        }
+
+        // Get number of rounds based on number of teams - 1
+        $number_of_rounds = count($teams) - 1;
+
+        // Divide teams in ruonds based on $team_per_rounds
+        $rounds = array_chunk($teams, $team_per_rounds);
+
+        // Split $teams in two arrays: $team1 (home) and $team2 (away)
+        for ($i = 0; $i < count($teams) / 2; $i++) {
+            $team1[$i] = $teams[$i];
+            $team2[$i] = $teams[count($teams) - 1 - $i];
+        }
+
+        print_r($rounds);
     }
-?>
+
+    /**
+     * Check number of teams and compare to $team_per_rounds to fill empty spots
+     * 
+     * @param int $number_of_teams Number of teams
+     * 
+     * @param array $filler Array containing the filler (ex. BYE)
+     * 
+     * @return array An array of teams.
+     */
+    function generate(int $number_of_teams = 4, int $team_per_rounds = 4, bool $shuffle = true, array $filler = ["name" => "BYE", "points" => 0])
+    {
+        $teams = [];
+
+        for ($i = 1; $i < $number_of_teams + 1; $i++) {
+            array_push($teams, ['name' => 'Team-' . $i, 'points' => 0]);
+        }
+
+        if (count($teams) % $team_per_rounds != 0) {
+            array_push($teams, $filler);
+            if (count($teams) % $team_per_rounds != 0) {
+                for ($i = 0; $i < count($teams) % $team_per_rounds; $i++) {
+                    array_push($teams, $filler);
+                }
+            }
+        }
+
+        if ($shuffle) {
+            shuffle($teams);
+        }
+
+        return $teams;
+    }
+
+    /**
+     * Generate matches
+     * 
+     * @param array $teams An array containing team info
+     * 
+     * @return array An array containing all the matches
+     */
+    function generate_matches(array $teams = [])
+    {
+        $number_of_teams = count($teams);
+
+        $matches = [];
+
+        for ($i = 0; $i < $number_of_teams; $i++) {
+
+            for ($j = 0; $j < $number_of_teams; $j++) {
+
+                if ($teams[$i] != $teams[$j]) {
+                    array_push($matches, ["Team1" => $teams[$i], "Team2" => $teams[$j]]);
+                }
+            }
+        }
+
+        print_r($matches);
+        return $matches;
+    }
+}
