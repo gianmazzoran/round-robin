@@ -1,25 +1,9 @@
 <?php
-class RoundRobin
-{
-    /**
-     * Check number of teams and compare to $team_per_rounds to fill empty spots
-     * 
-     * @param array $teams An array of teams
-     * 
-     * @param int $team_per_rounds Number of teams for each rounds
-     * 
-     * @param string $filler String containing the filler name (ex. BYE)
-     * 
-     * @param bool $shuffle Whether to shuffle the teams before generating the schedule, default is false
-     * 
-     * @return array An array of teams divided in rounds.
-     */
-    function generate_rounds(array $teams = [], bool $shuffle = false, int $team_per_rounds = 4, string $filler = "BYE")
-    {
 
-        // Add $filler to $teams
-        if (count($teams) % $team_per_rounds != 0) {
-            array_push($teams, $filler);
+class RoundRobin {
+    function generate(array $teams = [], bool $shuffle = true, int $team_per_rounds = 4, string $filler = "BYE") {
+        if (count($teams) % $team_per_rounds != 0){
+            array_push($teams,"BYE");
             if (count($teams) % $team_per_rounds != 0) {
                 for ($i = 0; $i < count($teams) % $team_per_rounds; $i++) {
                     array_push($teams, $filler);
@@ -27,84 +11,38 @@ class RoundRobin
             }
         }
 
-
-        // If true shuffle teams otherwise seed
-        if ($shuffle) {
-            shuffle($teams);
-        }
-
-        // Get number of rounds based on number of teams - 1
-        $number_of_rounds = count($teams) - 1;
-
-        // Divide teams in ruonds based on $team_per_rounds
-        $rounds = array_chunk($teams, $team_per_rounds);
-
-        // Split $teams in two arrays: $team1 (home) and $team2 (away)
-        for ($i = 0; $i < count($teams) / 2; $i++) {
-            $team1[$i] = $teams[$i];
-            $team2[$i] = $teams[count($teams) - 1 - $i];
-        }
-
-        print_r($rounds);
-    }
-
-    /**
-     * Check number of teams and compare to $team_per_rounds to fill empty spots
-     * 
-     * @param int $number_of_teams Number of teams
-     * 
-     * @param array $filler Array containing the filler (ex. BYE)
-     * 
-     * @return array An array of teams.
-     */
-    function generate(int $number_of_teams = 4, int $team_per_rounds = 4, bool $shuffle = true, array $filler = ["name" => "BYE", "points" => 0])
-    {
-        $teams = [];
-
-        for ($i = 1; $i < $number_of_teams + 1; $i++) {
-            array_push($teams, ['name' => 'Team-' . $i, 'points' => 0]);
-        }
-
-        if (count($teams) % $team_per_rounds != 0) {
-            array_push($teams, $filler);
-            if (count($teams) % $team_per_rounds != 0) {
-                for ($i = 0; $i < count($teams) % $team_per_rounds; $i++) {
-                    array_push($teams, $filler);
-                }
-            }
-        }
+        print_r(count($teams));
 
         if ($shuffle) {
             shuffle($teams);
         }
 
-        return $teams;
-    }
-
-    /**
-     * Generate matches
-     * 
-     * @param array $teams An array containing team info
-     * 
-     * @return array An array containing all the matches
-     */
-    function generate_matches(array $teams = [])
-    {
-        $number_of_teams = count($teams);
-
-        $matches = [];
-
-        for ($i = 0; $i < $number_of_teams; $i++) {
-
-            for ($j = 0; $j < $number_of_teams; $j++) {
-
-                if ($teams[$i] != $teams[$j]) {
-                    array_push($matches, ["Team1" => $teams[$i], "Team2" => $teams[$j]]);
-                }
-            }
+        if (count($teams) / 2 <= 2) {
+            $path = "winner:2";
+        } else if (count($teams) / 2 <= 4) {
+            $path = "winner:4";
+        } elseif (count($teams) / 2 <= 8) {
+            $path = "winner:8";
+        } elseif (count($teams) / 2 <= 16) {
+            $path = "winner:16";
+        } elseif (count($teams) / 2 <= 32) {
+            $path = "winner:32";
         }
 
-        print_r($matches);
-        return $matches;
+        $team2 = array_splice($teams,(count($teams)/2));
+        $team1 = $teams;
+        for ($i=0; $i < count($team1)+count($team2) - 1; $i++) {
+            for ($j=0; $j<count($team1); $j++) {
+                $round["Round-" . ($i + 1)]["Match-" . ($j + 1)]["Team-1"]=["Name" => $team1[$j], "Points" => 0, "path" => $path];
+                $round["Round-" . ($i + 1)]["Match-" . ($j + 1)]["Team-2"]=["Name" => $team2[$j], "Points" => 0, "path" => $path];
+            }
+            if(count($team1)+count($team2)-1 > 2) {
+                $s = array_splice( $team1, 1, 1 );
+                $slice = array_shift($s);
+                array_unshift($team2,$slice);
+                array_push( $team1, array_pop($team2));
+            }
+        }
+        return $round;
     }
 }
