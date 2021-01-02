@@ -1,11 +1,11 @@
 <?php
 
 class RoundRobin {
-    function generate(array $teams = [], bool $shuffle = true, int $team_per_rounds = 4, string $filler = "BYE") {
-        if (count($teams) % $team_per_rounds != 0){
-            array_push($teams,"BYE");
-            if (count($teams) % $team_per_rounds != 0) {
-                for ($i = 0; $i < count($teams) % $team_per_rounds; $i++) {
+    function generate(array $teams = [], bool $shuffle = true, int $remainder = 4, string $filler = "BYE") {
+        if (count($teams) % $remainder != 0){
+            array_push($teams, $filler);
+            if (count($teams) % $remainder != 0) {
+                for ($i = 0; $i < count($teams) % $remainder; $i++) {
                     array_push($teams, $filler);
                 }
             }
