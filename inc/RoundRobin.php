@@ -11,8 +11,6 @@ class RoundRobin {
             }
         }
 
-        print_r(count($teams));
-
         if ($shuffle) {
             shuffle($teams);
         }
@@ -33,8 +31,8 @@ class RoundRobin {
         $team1 = $teams;
         for ($i=0; $i < count($team1)+count($team2) - 1; $i++) {
             for ($j=0; $j<count($team1); $j++) {
-                $round["Round-" . ($i + 1)]["Match-" . ($j + 1)]["Team-1"]=["Name" => $team1[$j], "Points" => 0, "path" => $path];
-                $round["Round-" . ($i + 1)]["Match-" . ($j + 1)]["Team-2"]=["Name" => $team2[$j], "Points" => 0, "path" => $path];
+                $rounds["Round-" . ($i + 1)]["Match-" . ($j + 1)]["Team-1"] = ["Name" => $team1[$j], "Points" => 0, "path" => $path];
+                $rounds["Round-" . ($i + 1)]["Match-" . ($j + 1)]["Team-2"] = ["Name" => $team2[$j], "Points" => 0, "path" => $path];
             }
             if(count($team1)+count($team2)-1 > 2) {
                 $s = array_splice( $team1, 1, 1 );
@@ -43,6 +41,26 @@ class RoundRobin {
                 array_push( $team1, array_pop($team2));
             }
         }
-        return $round;
+        return $rounds;
+    }
+
+    function assignRandomPoints(array $rounds = []) {
+        foreach ($rounds as &$round) {
+            foreach ($round as &$match) {
+                foreach ($match as &$team) {
+                    $team['Points'] = rand(0, 3);
+                }
+                if ($match['Team-1']['Points'] === $match['Team-2']['Points']) {
+;
+                }
+            }
+        }
+        return $rounds;
+    }
+
+    function detectWinner(array $rounds = []) {
+        foreach ($rounds as $round) {
+            # code...
+        }
     }
 }

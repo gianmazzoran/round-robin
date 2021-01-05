@@ -8,23 +8,10 @@ $teams = [
     'Team-B',
     'Team-C',
     'Team-D',
-    'Team-E',
-    'Team-F',
-    'Team-G',
-    'Team-H',
-    'Team-I',
-    'Team-L',
-    'Team-M',
-    'Team-N',
-    'Team-O',
-    'Team-P',
-    'Team-Q',
-    'Team-R',
-    'Team-S',
-    'Team-T',
 ];
 
 $matches = $tournament->generate($teams);
+$matches = $tournament->assignRandomPoints($matches);
 
 ?>
 
@@ -44,8 +31,15 @@ $matches = $tournament->generate($teams);
 </head>
 
 <body>
+    <h1>Teams</h1>
     <pre>
-        <?php print_r($matches); ?>
+        <?php print_r($teams); ?>
+    </pre>
+    <h1>Rounds</h1>
+    <pre>
+        <?php
+            print_r($matches);
+        ?>
     </pre>
 </body>
 
